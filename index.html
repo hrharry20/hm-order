@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en"><head><title>Order</title><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="robots" content="noindex"><meta charset="utf-8"><meta name="color-scheme" content="light only"><meta name="theme-color" content="#f8cb46">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light only;--y:#f8cb46;--g:#0c831f;--g2:#16a34a;--ink:#1f2937;--mut:#7c8aa5;--line:#e7ecf5}
+*{box-sizing:border-box}html,body{margin:0}
+body{max-width:100vw;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:#fff8dc;min-height:100vh;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:linear-gradient(135deg,#fff8dc,#effbf1 40%,#f2f0ff 75%,#fff0f4)}
+.bg b{position:absolute;border-radius:50%;filter:blur(46px);opacity:.42;animation:blob 22s ease-in-out infinite alternate}
+@keyframes blob{50%{transform:translate(20vw,14vh) scale(1.2)}100%{transform:translate(-10vw,26vh) scale(.9)}}
+.bg i{position:absolute;bottom:-60px;font-style:normal;opacity:.3;animation:fl linear infinite}
+@keyframes fl{to{transform:translateY(-130vh) rotate(25deg)}}
+header{position:sticky;top:0;z-index:20;background:linear-gradient(100deg,#f8cb46,#ffe17d 55%,#f8cb46);padding:14px 16px 12px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.co{font:800 20px 'Space Grotesk',sans-serif;letter-spacing:-.2px;display:flex;align-items:center;gap:8px}
+.who{display:inline-flex;align-items:center;gap:6px;margin-top:6px;background:rgba(255,255,255,.75);border-radius:20px;padding:5px 12px;font-size:12.5px;font-weight:700}
+.who b{color:var(--g)}
+.srch{margin-top:10px;position:relative}.srch input{width:100%;border:0;border-radius:14px;padding:13px 14px 13px 40px;font:600 15px Inter;box-shadow:0 2px 8px rgba(0,0,0,.06);outline:none}
+.srch:before{content:'🔍';position:absolute;left:13px;top:12px;font-size:16px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 14px 4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1.5px solid var(--line);background:rgba(255,255,255,.88);border-radius:20px;padding:7px 14px;font:700 13px Inter;cursor:pointer;transition:.2s}
+.chip.on{background:var(--g);border-color:var(--g);color:#fff;box-shadow:0 6px 14px rgba(12,131,31,.3)}
+.ban{margin:10px 14px 4px;border-radius:20px;padding:14px 16px;color:#fff;background:linear-gradient(110deg,#0c831f,#22a447 55%,#45c16b);display:flex;align-items:center;position:relative;overflow:hidden;box-shadow:0 12px 26px rgba(12,131,31,.25)}
+.ban:after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.25) 50%,transparent 70%);animation:sh 4s infinite}
+@keyframes sh{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.ban h3{margin:0;color:var(--y);font:800 19px 'Space Grotesk'}.ban p{margin:2px 0 0;font-size:12.5px}.ban span{margin-left:auto;font-size:38px;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px) rotate(-6deg)}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:12px 14px 120px}
+.pc{min-width:0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:8px;display:flex;flex-direction:column;gap:5px;animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateY(10px)}}
+.ph{aspect-ratio:1/1;border-radius:14px;display:grid;place-items:center;position:relative;overflow:hidden;font-size:56px}
+.ph .w{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);color:#fff;font:800 11px Inter;padding:3px 10px;border-radius:10px}
+.u{align-self:flex-start;background:#f1f5fd;color:#64748b;font:700 10.5px Inter;padding:2px 7px;border-radius:6px}
+.n{font-weight:800;font-size:13px;line-height:1.25;min-height:32px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin-top:auto}.pr{flex:1 1 70px;min-width:0;font:900 15px Inter;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pr small{font-weight:600;color:var(--mut);font-size:11px}
+.add{border:1.5px solid var(--g2);color:#15803d;background:#fff;font:900 12.5px Inter;padding:7px 16px;border-radius:10px;cursor:pointer}
+.stp{display:inline-flex;align-items:center;background:var(--g2);border-radius:10px;color:#fff}.stp button{background:none;border:0;color:#fff;font-size:18px;width:30px;height:32px;cursor:pointer}
+.stp input{width:44px;border:0;background:transparent;color:#fff;text-align:center;font:900 14px Inter;outline:none}
+.more{grid-column:1/-1;text-align:center;color:var(--mut);font-size:13px;padding:10px}
+.bar{position:fixed;left:12px;right:12px;bottom:14px;z-index:30;background:var(--g2);color:#fff;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 14px 34px rgba(22,163,74,.45);cursor:pointer;animation:up .35s cubic-bezier(.2,.9,.2,1);max-width:640px;margin:0 auto}
+@keyframes up{from{transform:translateY(40px);opacity:0}}.bar small{display:block;opacity:.85;font-size:12px}.bar b{font-size:18px}.bar .go{margin-left:auto;font-weight:800}
+.sheet{position:fixed;inset:0;z-index:40;background:rgba(15,29,58,.45);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;animation:fd .2s}
+@keyframes fd{from{opacity:0}}
+.box{background:#fff;width:100%;max-width:640px;max-height:90vh;overflow:auto;border-radius:24px 24px 0 0;padding:16px 16px 22px;animation:up .3s ease}
+.box h2{margin:4px 0 10px;font:800 20px 'Space Grotesk'}
+.ln{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #f1f4fa}.ln .t{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:24px;flex:none}
+.ln .d{flex:1;min-width:0}.ln .d b{display:block;font-size:13.5px}.ln .d small{color:var(--mut)}
+.x{border:0;background:#fee2e2;color:#b91c1c;border-radius:10px;width:32px;height:32px;cursor:pointer}
+textarea,.in{width:100%;border:1px solid #d9e0ee;border-radius:12px;padding:10px 12px;font:14px Inter;margin-top:8px}
+.tot{display:flex;align-items:center;margin-top:12px}.tot b{font-size:20px;margin-left:auto}
+.place{width:100%;margin-top:14px;border:0;border-radius:14px;padding:15px;font:900 16px Inter;color:#fff;background:linear-gradient(100deg,#0c831f,#22a447);box-shadow:0 10px 24px rgba(12,131,31,.35);cursor:pointer}
+.place:disabled{opacity:.6}
+.ok{text-align:center;padding:30px 10px}.ok .big{font-size:74px;animation:pop .6s cubic-bezier(.2,1.6,.4,1)}@keyframes pop{from{transform:scale(0)}}
+.ok h2{font:800 24px 'Space Grotesk';margin:10px 0 4px}.ok p{color:#475569}
+.conf{position:fixed;top:-20px;width:10px;height:14px;border-radius:2px;z-index:60;animation:drop linear forwards}@keyframes drop{to{transform:translateY(110vh) rotate(720deg)}}
+.empty{text-align:center;color:var(--mut);padding:40px 20px}
+</style></head><body>
+<div class="bg" id="bg"></div>
+<div id="load" style="position:fixed;inset:0;z-index:99;display:grid;place-items:center;background:#fff8dc;font:800 18px Inter,sans-serif;color:#0c831f"><div style="text-align:center"><div style="font-size:54px;animation:bob 1.2s ease-in-out infinite">🛒</div>Opening your order form…</div></div>
+<header><div class="co">🛒 <span id="co"></span></div><div class="who">👤 Ordering as <b id="party"></b></div><div class="srch"><input id="q" placeholder="Search items…" autocomplete="off"></div></header>
+<div class="ban"><div><h3>⚡ Order in seconds</h3><p id="banP"></p></div><span>🛍️</span></div>
+<div class="chips" id="chips"></div>
+<div class="grid" id="grid"></div>
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbwlj52v_F6I_oF0FhnFl7vBSOCutDWdFt3Xvn_tfBWv00klb8wMxO7IhmuGKp3GP60o/exec';
+const TOKEN = new URLSearchParams(location.search).get('o') || '';
+(async () => {
+let D;
+try { D = await (await fetch(`${API}?api=form&o=${encodeURIComponent(TOKEN)}`)).json(); if (!D.ok) throw new Error(D.error || 'This order link is not valid'); }
+catch (err) { document.getElementById('load').innerHTML = `<div style="text-align:center;padding:30px;color:#b91c1c">⚠️ ${String(err.message || err).replace(/</g, '&lt;')}<br><small style="color:#64748b">Please ask your supplier for a new order link.</small></div>`; return; }
+D.token = TOKEN; document.title = `Order · ${D.company || ''}`;
+for (const it of D.items) it.d = String(it.n).replace(/&#\d+;|[\r\n\t]+/g, ' ').replace(/^[\s\-]+/, '').replace(/\s{2,}/g, ' ').trim() || it.n;
+const nm = (n) => (D.items.find((x) => x.n === n) || {}).d || n;
+const PAL = ['#6d5dfc','#0ea5e9','#10b981','#f59e0b','#ec4899','#8b5cf6','#14b8a6','#f97316'];
+const colOf = (s) => PAL[Math.abs([...String(s)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7)) % PAL.length];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const money = (n) => `₹${inr.format(Number(n) || 0).replace(/\.00$/, '')}`;
+const icon = (it) => { const t = `${it.n} ${it.g || ''} ${it.b || ''}`.toLowerCase();
+  for (const [re, ic] of [[/rice|basmati|paddy|bran|dhan|chawal|grain|wheat|atta/, '🌾'], [/bag|bardana|jute|bopp|sack|pack|pouch|carton|box/, '🛍️'], [/oil|liquid|ghee|diesel|lubric/, '🛢️'], [/belt|spare|part|bearing|machin|motor|pump|bolt|gear|roller|sieve/, '⚙️'], [/electric|wire|cable|bulb|light|switch|led/, '💡'], [/flavou?r|essence|chemical|colou?r/, '🧪'], [/pipe|valve/, '🔧'], [/paper|label|sticker/, '🏷️']]) if (re.test(t)) return ic;
+  return '📦'; };
+const weight = (n) => { const m = /(\d+(?:\.\d+)?)\s*(kg|kgs|g|gm|ltr|l|ml|qtl)\b/i.exec(n); return m ? `${m[1]} ${m[2].toUpperCase()}` : ''; };
+const cart = new Map(); let group = '', q = '';
+document.getElementById('co').textContent = D.company || 'Order form';
+document.getElementById('party').textContent = D.party || 'Customer';
+document.getElementById('banP').textContent = `${D.items.length} items · choose quantities and place your order`;
+document.getElementById('bg').innerHTML = ['#f8cb46','#0c831f','#ff7a59','#5b4cf0','#22c1c3','#ec4899'].map((c, i) => `<b style="background:${c};width:${280 + (i % 3) * 80}px;height:${280 + (i % 3) * 80}px;left:${(i * 19) % 90}%;top:${(i * 27) % 70}%;animation-delay:-${i * 4}s"></b>`).join('')
+  + ['🛒','🌾','🛍️','📦','🥦','🧃','🍎','🧺','⚡','🏷️','🥕','🧴'].map((e, i) => `<i style="left:${(i * 13.7 + 4) % 96}%;font-size:${22 + (i % 3) * 10}px;animation-duration:${26 + (i % 5) * 6}s;animation-delay:-${i * 3.1}s">${e}</i>`).join('');
+const groups = (() => { const m = new Map(); for (const it of D.items) { const g = it.g || 'Other'; m.set(g, (m.get(g) || 0) + 1); } return [...m.entries()].sort((a, b) => b[1] - a[1]); })();
+function chips() { document.getElementById('chips').innerHTML = [['', D.items.length], ...groups].slice(0, 60).map(([g, n]) => `<button class="chip ${group === g ? 'on' : ''}" data-g="${esc(g)}">${g ? esc(g) : 'All items'} · ${n}</button>`).join(''); }
+document.getElementById('chips').onclick = (e) => { const b = e.target.closest('.chip'); if (!b) return; group = b.dataset.g; chips(); grid(); };
+const visible = () => { const w = q.toLowerCase().split(/\s+/).filter(Boolean); return D.items.filter((it) => (!group || (it.g || 'Other') === group) && w.every((x) => `${it.n} ${it.a || ''} ${it.b || ''}`.toLowerCase().includes(x))); };
+const step = (it) => { const v = cart.get(it.n); return v ? `<span class="stp"><button data-a="-">−</button><input data-a="q" inputmode="decimal" value="${v}"><button data-a="+">+</button></span>` : '<button class="add" data-a="+">ADD</button>'; };
+function card(it, i) { const c = colOf(it.n), w = weight(it.n);
+  return `<div class="pc" data-n="${esc(it.n)}" style="animation-delay:${Math.min(i, 20) * 20}ms"><div class="ph" style="background:linear-gradient(135deg,${c}33,${c}10)">${icon(it)}${w ? `<span class="w" style="background:${c}">${esc(w)}</span>` : ''}</div>
+  <span class="u">${it.u ? `per ${esc(it.u)}` : '—'}</span><div class="n">${esc(it.d || it.n)}</div><div class="row"><span class="pr">${it.r > 0 ? money(it.r) : '<small>Rate on bill</small>'}</span>${step(it)}</div></div>`; }
+function grid() { const l = visible(); const el = document.getElementById('grid');
+  el.innerHTML = l.length ? l.slice(0, 150).map(card).join('') + (l.length > 150 ? `<div class="more">Showing 150 of ${l.length} — search to find more</div>` : '') : '<div class="empty">No items found</div>'; }
+const find = (n) => D.items.find((x) => x.n === n);
+function setQ(n, v) { v = Math.max(0, Math.round((Number(v) || 0) * 1000) / 1000); if (v > 0) cart.set(n, v); else cart.delete(n); }
+function refresh(card) { if (card) { const it = find(card.dataset.n); card.querySelector('.row').lastElementChild.outerHTML = step(it); } bar(); }
+document.getElementById('grid').onclick = (e) => { const b = e.target.closest('[data-a]'); if (!b || b.dataset.a === 'q') return; const c = b.closest('.pc'); const n = c.dataset.n; setQ(n, (cart.get(n) || 0) + (b.dataset.a === '+' ? 1 : -1)); refresh(c); };
+document.getElementById('grid').onchange = (e) => { if (e.target.dataset.a !== 'q') return; const c = e.target.closest('.pc'); setQ(c.dataset.n, e.target.value); refresh(c); };
+document.getElementById('q').oninput = (e) => { q = e.target.value; grid(); };
+const total = () => [...cart.entries()].reduce((s, [n, v]) => s + v * ((find(n) || {}).r || 0), 0);
+function bar() { document.querySelector('.bar')?.remove(); if (!cart.size) return; const b = document.createElement('div'); b.className = 'bar';
+  b.innerHTML = `<span style="font-size:22px">🛒</span><div><small>${cart.size} item${cart.size > 1 ? 's' : ''}</small><b>${money(total())}</b></div><span class="go">Review order ›</span>`; b.onclick = review; document.body.appendChild(b); }
+function review() {
+  const s = document.createElement('div'); s.className = 'sheet';
+  const lines = () => [...cart.entries()].map(([n, v]) => { const it = find(n) || { n }; const c = colOf(n); return `<div class="ln" data-n="${esc(n)}"><div class="t" style="background:${c}22">${icon(it)}</div><div class="d"><b>${esc(nm(n))}</b><small>${it.r > 0 ? `${money(it.r)} × ${v} ${esc(it.u || '')} = ${money(it.r * v)}` : `${v} ${esc(it.u || '')} · rate on bill`}</small></div><span class="stp"><button data-a="-">−</button><input data-a="q" inputmode="decimal" value="${v}"><button data-a="+">+</button></span><button class="x" data-a="x">✕</button></div>`; }).join('');
+  s.innerHTML = `<div class="box"><h2>🧾 Your order</h2><div id="ls">${lines()}</div><div class="tot"><span style="color:#64748b">${D.party ? `For <b>${esc(D.party)}</b>` : ''} <small>(+ GST as applicable)</small></span><b id="tt">${money(total())}</b></div>
+    <textarea id="note" rows="2" placeholder="Note for us (delivery date, transport, etc.) — optional"></textarea><input class="in" id="contact" placeholder="Your mobile (optional)" inputmode="tel">
+    <button class="place" id="place">✅ Place order</button><button class="place" style="background:#eef2f7;color:#334155;box-shadow:none" id="back">← Add more items</button></div>`;
+  document.body.appendChild(s);
+  const upd = () => { s.querySelector('#ls').innerHTML = lines(); s.querySelector('#tt').textContent = money(total()); bar(); grid(); if (!cart.size) s.remove(); };
+  s.querySelector('#ls').onclick = (e) => { const b = e.target.closest('[data-a]'); if (!b || b.dataset.a === 'q') return; const n = b.closest('.ln').dataset.n; setQ(n, b.dataset.a === 'x' ? 0 : (cart.get(n) || 0) + (b.dataset.a === '+' ? 1 : -1)); upd(); };
+  s.querySelector('#ls').onchange = (e) => { if (e.target.dataset.a === 'q') { setQ(e.target.closest('.ln').dataset.n, e.target.value); upd(); } };
+  s.onclick = (e) => { if (e.target === s) s.remove(); }; s.querySelector('#back').onclick = () => s.remove();
+  s.querySelector('#place').onclick = (e) => { const btn = e.currentTarget; btn.disabled = true; btn.textContent = 'Placing order…';
+    const l = [...cart.entries()].map(([n, v]) => { const it = find(n) || {}; return { n, q: v, u: it.u || '', r: it.r || 0 }; });
+    const ok = (r) => { cart.clear(); bar(); grid(); s.querySelector('.box').innerHTML = `<div class="ok"><div class="big">🎉</div><h2>Order placed!</h2><p>Order no <b>${esc(r.no)}</b> · ${r.items} item(s)${r.total ? ` · ${money(r.total)}` : ''}</p><p>${esc(D.company)} will confirm your order soon. Thank you! 🙏</p><button class="place" onclick="this.closest('.sheet').remove()">Done</button></div>`; confetti(); };
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ api: 'submit', o: D.token, lines: l, note: s.querySelector('#note').value, contact: s.querySelector('#contact').value }) })
+      .then((x) => x.json()).then((r) => { if (!r.ok) throw new Error(r.error || 'Could not place the order'); ok(r); })
+      .catch((err) => { btn.disabled = false; btn.textContent = '✅ Place order'; alert(err.message || err); }); };
+}
+function confetti() { for (let i = 0; i < 80; i++) { const c = document.createElement('i'); c.className = 'conf'; c.style.left = `${Math.random() * 100}vw`; c.style.background = PAL[i % PAL.length]; c.style.animationDuration = `${1.6 + Math.random() * 1.8}s`; c.style.animationDelay = `${Math.random() * .5}s`; document.body.appendChild(c); setTimeout(() => c.remove(), 4200); } }
+chips(); grid(); document.getElementById('load').remove();
+})();
+</script></body></html>
