@@ -29,9 +29,9 @@ header{flex:none;background:linear-gradient(180deg,#f8cb46,#fcd965);padding:10px
 .ph .t{position:absolute;top:5px;left:5px;background:#5b4cf0;color:#fff;font:800 8.5px Inter;padding:2px 5px;border-radius:5px}
 .u{font-size:10.5px;color:var(--mut);font-weight:600}
 .n{font-weight:700;font-size:12px;line-height:1.25;min-height:30px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.row{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-top:auto}.pr{font:900 13px Inter;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.pr small{display:block;font:600 9.5px Inter;color:var(--mut)}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px;margin-top:auto}.pr{flex:1 0 auto;font:900 13px Inter;white-space:nowrap}.pr small{display:block;font:600 9.5px Inter;color:var(--mut)}
 .add{flex:none;border:1.3px solid var(--g2);color:var(--g);background:#f7fff9;font:900 12px Inter;padding:6px 13px;border-radius:9px;cursor:pointer}
-.stp{flex:none;display:inline-flex;align-items:center;background:var(--g2);border-radius:9px;color:#fff}.stp button{background:none;border:0;color:#fff;font:800 16px Inter;width:24px;height:28px;cursor:pointer;padding:0}
+.stp{flex:none;display:inline-flex;align-items:center;background:var(--g2);border-radius:9px;color:#fff}.stp{margin-left:auto}.stp button{background:none;border:0;color:#fff;font:800 16px Inter;width:24px;height:28px;cursor:pointer;padding:0}
 .stp input{width:32px;border:0;background:transparent;color:#fff;text-align:center;font:900 12.5px Inter;outline:none;padding:0}
 .more,.empty{grid-column:1/-1;text-align:center;color:var(--mut);font-size:12.5px;padding:14px}
 .bar{position:fixed;left:50%;transform:translateX(-50%);bottom:max(12px,env(safe-area-inset-bottom));width:calc(100% - 20px);max-width:800px;z-index:30;background:var(--g2);color:#fff;border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 12px 30px rgba(22,163,74,.45);cursor:pointer;animation:up .3s cubic-bezier(.2,.9,.2,1)}
