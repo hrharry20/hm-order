@@ -148,7 +148,7 @@ async function myOrders() {
   const steps = ['Placed', 'Received', 'Approved', 'Dispatched'];
   const card = (o, k) => { const [label, col, at] = ST[o.status] || [o.status, '#6b7280', 0];
     const trk = at ? `<div class="trk">${steps.map((x, i) => `<span class="s ${at > i ? 'on' : ''}">${at > i ? '✓' : i + 1}</span>${i < 3 ? `<span class="l ${at > i + 1 ? 'on' : ''}"></span>` : ''}`).join('')}</div><div class="tl">${steps.map((x) => `<span>${x}</span>`).join('')}</div>` : '';
-    return `<div class="oc" data-k="${k}"><div class="h"><b>${esc(o.id)}</b><small>${when(o.at)}${o.updated ? ' · changed' : ''}</small><span class="chip" style="background:${col}">${label}</span></div>${trk}
+    return `<div class="oc" data-k="${k}"><div class="h"><b>${esc(o.id)}</b><small>${when(o.at)}${o.updated ? ` · updated ${when(o.updated)}` : ''}</small><span class="chip" style="background:${col}">${label}</span></div>${trk}
       <div class="it">${o.lines.map((l) => `${esc(clean(l.n))} — <b>${l.q} ${esc(l.u || '')}</b>`).join('<br>')}</div>
       <div class="ft"><b>${money(o.total)}</b><button class="ob" data-a="print">🖨️ Print</button>${canChange(o) ? '<button class="ob e" data-a="edit">✏️ Edit</button><button class="ob c" data-a="cancel">✕ Cancel</button>' : ''}</div></div>`; };
   const draw = () => { s.querySelector('#ol').outerHTML = `<div id="ol">${orders.length ? orders.map(card).join('') : '<div style="text-align:center;color:#6b7a90;padding:20px">No orders yet.</div>'}<div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:4px">You can edit or cancel an order until ${esc(D.company)} approves it.</div></div>`; };
