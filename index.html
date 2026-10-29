@@ -57,6 +57,12 @@ textarea,.in{width:100%;border:1px solid #d9e0ee;border-radius:11px;padding:9px 
 .trk .l{flex:1;height:3px;background:#e5e9f2}.trk .l.on{background:var(--g)}.tl{display:flex;justify-content:space-between;font-size:9.5px;color:var(--mut);font-weight:700;margin:0 -4px}
 .oc .it{font-size:12px;color:#374151;margin-top:6px;line-height:1.5}.oc .ft{display:flex;align-items:center;gap:6px;margin-top:9px;flex-wrap:wrap}.oc .ft b{font-size:14px;margin-right:auto}
 .ob{border:1px solid #d9e0ee;background:#fff;border-radius:9px;padding:6px 10px;font:800 11.5px Inter;cursor:pointer}.ob.e{border-color:#16a34a;color:#15803d}.ob.c{border-color:#fca5a5;color:#b91c1c}
+#printArea{display:none}
+@media print{@page{size:A4;margin:12mm}body{overflow:visible;background:#fff}body>*:not(#printArea){display:none!important}#printArea{display:block;font-family:Inter,Arial,sans-serif;color:#1f2937}
+.pr-hd{background:#0c831f!important;color:#fff;padding:16px 20px;display:flex;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact}.pr-hd h1{margin:0;font-size:22px}.pr-b{margin-left:auto;background:#f8cb46!important;color:#0c831f;font-weight:900;padding:6px 12px;border-radius:8px}
+.pr-strip{height:5px;background:#f8cb46!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.pr-in{padding:0 20px}.pr-bx{display:flex;gap:10px;margin:14px 0}.pr-bx div{flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:8px}.pr-bx small{display:block;color:#64748b;font-size:10px;text-transform:uppercase}
+#printArea table{width:100%;border-collapse:collapse;font-size:13px}#printArea th{background:#1f2937!important;color:#fff;text-align:left;padding:7px;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printArea td{padding:7px;border-bottom:1px solid #e2e8f0}#printArea .r{text-align:right}
+.pr-tot{margin:12px 0 0 auto;width:260px;background:#0c831f!important;color:#fff;border-radius:8px;padding:10px 12px;display:flex;font-weight:800;-webkit-print-color-adjust:exact;print-color-adjust:exact}.pr-tot span{margin-left:auto}.pr-ft{margin-top:28px;font-size:11px;color:#64748b;text-align:center}}
 #load{position:fixed;inset:0;z-index:99;display:grid;place-items:center;background:#fff8dc;font:800 16px Inter;color:var(--g)}
 #load .b{font-size:52px;animation:bob 1.1s ease-in-out infinite;text-align:center}@keyframes bob{50%{transform:translateY(-8px) rotate(-6deg)}}
 #load .bar2{width:180px;height:6px;border-radius:6px;background:#efe6b8;overflow:hidden;margin:12px auto 0}#load .bar2 i{display:block;height:100%;width:40%;background:var(--g);border-radius:6px;animation:run 1.1s ease-in-out infinite}@keyframes run{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
@@ -163,21 +169,16 @@ async function myOrders() {
 }
 document.getElementById('mine').onclick = myOrders;
 function printOrder(o) {
-  const w = window.open('', '_blank'); if (!w) { alert('Allow pop-ups to print'); return; }
+  // printed from this page (pop-ups are blocked on many phones): an A4 sheet shown only when printing
+  let pa = document.getElementById('printArea'); if (!pa) { pa = document.createElement('div'); pa.id = 'printArea'; document.body.appendChild(pa); }
   const rows = o.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${esc(clean(l.n))}</td><td class="r">${l.q}</td><td>${esc(l.u || '')}</td><td class="r">${l.r ? money(l.r) : '—'}</td><td class="r">${l.r ? money(l.r * l.q) : 'On bill'}</td></tr>`).join('');
   const [label] = ST[o.status] || [o.status];
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Order ${esc(o.id)}</title><style>@page{size:A4;margin:14mm}body{font-family:Inter,Arial,sans-serif;color:#1f2937;margin:0}
-    .hd{background:#0c831f;color:#fff;padding:18px 22px;display:flex;align-items:center}.hd h1{margin:0;font-size:22px}.hd .b{margin-left:auto;background:#f8cb46;color:#0c831f;font-weight:900;padding:6px 12px;border-radius:8px}
-    .strip{height:5px;background:#f8cb46}.bx{display:flex;gap:10px;margin:16px 0}.bx div{flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px}.bx small{display:block;color:#64748b;font-size:10px;text-transform:uppercase}
-    table{width:100%;border-collapse:collapse;font-size:13px}th{background:#1f2937;color:#fff;text-align:left;padding:7px}td{padding:7px;border-bottom:1px solid #e2e8f0}.r{text-align:right}tr:nth-child(even) td{background:#f6fbf7}
-    .tot{margin-left:auto;width:260px;margin-top:12px;background:#0c831f;color:#fff;border-radius:8px;padding:10px 12px;display:flex;font-weight:800}.tot span{margin-left:auto}.n{margin-top:12px;font-size:12px;color:#475569}.ft{margin-top:30px;font-size:11px;color:#64748b;text-align:center}</style></head><body>
-    <div class="hd"><h1>${esc(D.company)}</h1><span class="b">ORDER · ${esc(label.toUpperCase())}</span></div><div class="strip"></div><div style="padding:0 22px">
-    <h2 style="margin:16px 0 0">Order ${esc(o.id)}</h2><div class="bx"><div><small>Ordered by</small><b>${esc(D.party)}</b></div><div><small>Date</small><b>${when(o.at)}</b></div><div><small>Status</small><b>${esc(label)}</b></div><div><small>Items</small><b>${o.lines.length}</b></div></div>
+  pa.innerHTML = `<div class="pr-hd"><h1>${esc(D.company)}</h1><span class="pr-b">ORDER · ${esc(String(label).toUpperCase())}</span></div><div class="pr-strip"></div><div class="pr-in">
+    <h2>Order ${esc(o.id)}</h2><div class="pr-bx"><div><small>Ordered by</small><b>${esc(D.party)}</b></div><div><small>Date</small><b>${when(o.at)}</b></div><div><small>Status</small><b>${esc(label)}</b></div><div><small>Items</small><b>${o.lines.length}</b></div></div>
     <table><tr><th>#</th><th>Item</th><th class="r">Qty</th><th>Unit</th><th class="r">Rate</th><th class="r">Amount</th></tr>${rows}</table>
-    <div style="display:flex"><div class="tot">Estimated total<span>${money(o.total)}</span></div></div>${o.note ? `<div class="n"><b>Note:</b> ${esc(o.note)}</div>` : ''}
-    <div class="ft">This is a record of your order, not a tax invoice. GST and the final amount will be on the bill at dispatch.</div></div>
-    <script>setTimeout(()=>print(),300)<\/script></body></html>`);
-  w.document.close();
+    <div class="pr-tot">Estimated total<span>${money(o.total)}</span></div>${o.note ? `<p><b>Note:</b> ${esc(o.note)}</p>` : ''}
+    <p class="pr-ft">This is a record of your order, not a tax invoice. GST and the final amount will be on the bill at dispatch.</p></div>`;
+  setTimeout(() => window.print(), 50);
 }
 function confetti() { for (let i = 0; i < 70; i++) { const c = document.createElement('i'); c.className = 'conf'; c.style.left = `${Math.random() * 100}vw`; c.style.background = PAL[i % PAL.length]; c.style.animationDuration = `${1.6 + Math.random() * 1.8}s`; c.style.animationDelay = `${Math.random() * .5}s`; document.body.appendChild(c); setTimeout(() => c.remove(), 4200); } }
 side(); list(); document.getElementById('load').remove();
