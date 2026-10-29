@@ -49,13 +49,21 @@ textarea,.in{width:100%;border:1px solid #d9e0ee;border-radius:11px;padding:9px 
 .ok{text-align:center;padding:24px 8px}.ok .big{font-size:66px;animation:pop .6s cubic-bezier(.2,1.6,.4,1)}@keyframes pop{from{transform:scale(0)}}
 .ok h2{font:900 22px Inter;margin:8px 0 4px}.ok p{color:#475569;font-size:14px}
 .conf{position:fixed;top:-20px;width:9px;height:13px;border-radius:2px;z-index:60;animation:drop linear forwards}@keyframes drop{to{transform:translateY(110vh) rotate(720deg)}}
+.hbtn{margin-left:auto;flex:none;border:0;background:rgba(255,255,255,.85);border-radius:20px;padding:6px 11px;font:800 12px Inter;cursor:pointer;color:#1f2937}
+.edit-bn{background:#fff7d6;border:1px solid #f8cb46;border-radius:10px;padding:8px 10px;font-size:12.5px;font-weight:700;margin:-2px 0 8px;display:flex;align-items:center;gap:8px}.edit-bn button{margin-left:auto;border:0;background:none;color:#b45309;font-weight:800;cursor:pointer}
+.oc{border:1px solid var(--line);border-radius:14px;padding:11px;margin-bottom:10px}.oc .h{display:flex;align-items:center;gap:8px}.oc .h b{font-size:14px}.oc .h small{color:var(--mut);font-size:11.5px}
+.chip{margin-left:auto;font:800 10.5px Inter;padding:3px 9px;border-radius:20px;color:#fff;white-space:nowrap}
+.trk{display:flex;align-items:center;margin:10px 2px 6px}.trk .s{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:900;background:#e5e9f2;color:#94a3b8}.trk .s.on{background:var(--g);color:#fff}
+.trk .l{flex:1;height:3px;background:#e5e9f2}.trk .l.on{background:var(--g)}.tl{display:flex;justify-content:space-between;font-size:9.5px;color:var(--mut);font-weight:700;margin:0 -4px}
+.oc .it{font-size:12px;color:#374151;margin-top:6px;line-height:1.5}.oc .ft{display:flex;align-items:center;gap:6px;margin-top:9px;flex-wrap:wrap}.oc .ft b{font-size:14px;margin-right:auto}
+.ob{border:1px solid #d9e0ee;background:#fff;border-radius:9px;padding:6px 10px;font:800 11.5px Inter;cursor:pointer}.ob.e{border-color:#16a34a;color:#15803d}.ob.c{border-color:#fca5a5;color:#b91c1c}
 #load{position:fixed;inset:0;z-index:99;display:grid;place-items:center;background:#fff8dc;font:800 16px Inter;color:var(--g)}
 #load .b{font-size:52px;animation:bob 1.1s ease-in-out infinite;text-align:center}@keyframes bob{50%{transform:translateY(-8px) rotate(-6deg)}}
 #load .bar2{width:180px;height:6px;border-radius:6px;background:#efe6b8;overflow:hidden;margin:12px auto 0}#load .bar2 i{display:block;height:100%;width:40%;background:var(--g);border-radius:6px;animation:run 1.1s ease-in-out infinite}@keyframes run{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
 </style></head><body>
 <div id="load"><div style="text-align:center"><div class="b">🛒</div>Opening your order form…<div class="bar2"><i></i></div></div></div>
 <div class="app">
-<header><div class="top"><span class="logo">🛒</span><b id="co"></b></div><div class="who">Ordering for <b id="party"></b></div><div class="srch"><input id="q" placeholder="Search items…" autocomplete="off" enterkeyhint="search"></div></header>
+<header><div class="top"><span class="logo">🛒</span><b id="co"></b><button class="hbtn" id="mine">📋 My orders</button></div><div class="who">Ordering for <b id="party"></b></div><div class="srch"><input id="q" placeholder="Search items…" autocomplete="off" enterkeyhint="search"></div></header>
 <div class="main"><nav class="side" id="side"></nav><section class="list" id="list"></section></div>
 </div>
 <script>
@@ -78,7 +86,11 @@ document.title = `Order · ${D.company || ''}`;
 const items = D.items.map((it, i) => ({ ...it, i, d: clean(it.n), ic: icon(`${it.n} ${it.g || ''}`) }));
 const mineRate = new Map((D.mine || []).map(([k, r]) => [k, r]));
 const mine = (D.mine || []).map(([k]) => items[k]).filter(Boolean);
-const cart = new Map(); let group = mine.length ? '★' : '', q = '';
+const cart = new Map(); let group = mine.length ? '★' : '', q = ''; let editing = null; // order being changed
+const ST = { new: ['Placed', '#f59e0b', 1], received: ['Received', '#0ea5e9', 2], booked: ['Received', '#0ea5e9', 2], approved: ['Approved', '#16a34a', 3], dispatched: ['Dispatched', '#0c831f', 4], rejected: ['Rejected', '#dc2626', 0], cancel: ['Cancelling…', '#9ca3af', 0], cancelled: ['Cancelled', '#6b7280', 0], test: ['Test', '#9ca3af', 0] };
+const canChange = (o) => ['new', 'received', 'booked'].includes(o.status);
+const byName = new Map(items.map((it) => [it.n, it]));
+const when = (t) => { const d = new Date(t); return isNaN(d) ? '' : d.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); };
 document.getElementById('co').textContent = D.company || 'Order form';
 document.getElementById('party').textContent = D.party || 'Customer';
 const rateOf = (it) => (mineRate.get(it.i) > 0 ? mineRate.get(it.i) : it.r) || 0;
@@ -110,20 +122,62 @@ function bar() { document.querySelector('.bar')?.remove(); if (!cart.size) retur
 function review() {
   const s = document.createElement('div'); s.className = 'sheet';
   const lines = () => [...cart.entries()].map(([i, v]) => { const it = items[i], r = rateOf(it), c = colOf(it.n); return `<div class="ln" data-i="${i}"><div class="t" style="background:${c}22">${it.ic}</div><div class="d"><b>${esc(it.d)}</b><small>${r > 0 ? `${money(r)} × ${v} ${esc(it.u || '')} = ${money(r * v)}` : `${v} ${esc(it.u || '')} · rate on bill`}</small></div><span class="stp"><button data-a="-">−</button><input data-a="q" inputmode="decimal" value="${v}"><button data-a="+">+</button></span><button class="x" data-a="x">✕</button></div>`; }).join('');
-  s.innerHTML = `<div class="box"><h2>🧾 Your order</h2><div id="ls">${lines()}</div><div class="tot"><span>For <b style="font-size:12.5px;color:#1f2937">${esc(D.party)}</b> · + GST as applicable</span><b id="tt">${money(total())}</b></div>
+  s.innerHTML = `<div class="box"><h2>🧾 ${editing ? `Change order ${esc(editing.id)}` : 'Your order'}</h2>${editing ? `<div class="edit-bn">✏️ Changing order ${esc(editing.id)}<button id="stopEdit">Stop editing</button></div>` : ''}<div id="ls">${lines()}</div><div class="tot"><span>For <b style="font-size:12.5px;color:#1f2937">${esc(D.party)}</b> · + GST as applicable</span><b id="tt">${money(total())}</b></div>
     <textarea id="note" rows="2" placeholder="Note (delivery date, transport…) — optional"></textarea><input class="in" id="contact" placeholder="Your WhatsApp number (optional)" inputmode="tel">
-    <button class="place" id="place">✅ Place order</button><button class="place ghost" id="back">← Add more items</button></div>`;
+    <button class="place" id="place">✅ ${editing ? 'Save changes' : 'Place order'}</button><button class="place ghost" id="back">← Add more items</button></div>`;
   document.body.appendChild(s);
+  if (editing) { s.querySelector('#note').value = editing.note || ''; s.querySelector('#stopEdit').onclick = () => { editing = null; cart.clear(); bar(); list(); s.remove(); }; }
   const upd = () => { s.querySelector('#ls').innerHTML = lines(); s.querySelector('#tt').textContent = money(total()); bar(); list(); if (!cart.size) s.remove(); };
   s.querySelector('#ls').onclick = (e) => { const b = e.target.closest('[data-a]'); if (!b || b.dataset.a === 'q') return; const i = +b.closest('.ln').dataset.i; setQ(i, b.dataset.a === 'x' ? 0 : (cart.get(i) || 0) + (b.dataset.a === '+' ? 1 : -1)); upd(); };
   s.querySelector('#ls').onchange = (e) => { if (e.target.dataset.a === 'q') { setQ(+e.target.closest('.ln').dataset.i, e.target.value); upd(); } };
   s.onclick = (e) => { if (e.target === s) s.remove(); }; s.querySelector('#back').onclick = () => s.remove();
   s.querySelector('#place').onclick = (e) => { const btn = e.currentTarget; btn.disabled = true; btn.textContent = 'Placing order…';
     const l = [...cart.entries()].map(([i, v]) => ({ n: items[i].n, q: v, u: items[i].u || '', r: rateOf(items[i]) }));
-    fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ api: 'submit', o: TOKEN, lines: l, note: s.querySelector('#note').value, contact: s.querySelector('#contact').value }) })
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ api: 'submit', o: TOKEN, id: editing ? editing.id : undefined, lines: l, note: s.querySelector('#note').value, contact: s.querySelector('#contact').value }) })
       .then((x) => x.json()).then((r) => { if (!r.ok) throw new Error(r.error || 'Could not place the order');
-        cart.clear(); bar(); list(); s.querySelector('.box').innerHTML = `<div class="ok"><div class="big">🎉</div><h2>Order placed!</h2><p>Order no <b>${esc(r.no)}</b> · ${r.items} item(s)${r.total ? ` · ${money(r.total)}` : ''}</p><p>${esc(D.company)} will confirm it on WhatsApp with your order PDF. Thank you! 🙏</p><button class="place" onclick="this.closest('.sheet').remove()">Done</button></div>`; confetti(); })
+        const was = editing; editing = null; cart.clear(); bar(); list(); s.querySelector('.box').innerHTML = `<div class="ok"><div class="big">${was ? '✏️' : '🎉'}</div><h2>${was ? 'Order updated!' : 'Order placed!'}</h2><p>Order no <b>${esc(r.no)}</b> · ${r.items} item(s)${r.total ? ` · ${money(r.total)}` : ''}</p><p>${esc(D.company)} will confirm it on WhatsApp with your order PDF. Thank you! 🙏</p><button class="place" onclick="this.closest('.sheet').remove()">Done</button></div>`; confetti(); })
       .catch((err) => { btn.disabled = false; btn.textContent = '✅ Place order'; alert(err.message || err); }); };
+}
+async function myOrders() {
+  const s = document.createElement('div'); s.className = 'sheet';
+  s.innerHTML = '<div class="box"><h2>📋 My orders</h2><div id="ol" style="text-align:center;color:#6b7a90;padding:20px">Loading your orders…</div></div>';
+  document.body.appendChild(s); s.onclick = (e) => { if (e.target === s) s.remove(); };
+  let orders = [];
+  try { const r = await (await fetch(`${API}?api=mine&o=${encodeURIComponent(TOKEN)}`)).json(); if (!r.ok) throw new Error(r.error); orders = r.orders.filter((o) => o.status !== 'test'); }
+  catch (err) { s.querySelector('#ol').textContent = `⚠️ ${err.message || err}`; return; }
+  const steps = ['Placed', 'Received', 'Approved', 'Dispatched'];
+  const card = (o, k) => { const [label, col, at] = ST[o.status] || [o.status, '#6b7280', 0];
+    const trk = at ? `<div class="trk">${steps.map((x, i) => `<span class="s ${at > i ? 'on' : ''}">${at > i ? '✓' : i + 1}</span>${i < 3 ? `<span class="l ${at > i + 1 ? 'on' : ''}"></span>` : ''}`).join('')}</div><div class="tl">${steps.map((x) => `<span>${x}</span>`).join('')}</div>` : '';
+    return `<div class="oc" data-k="${k}"><div class="h"><b>${esc(o.id)}</b><small>${when(o.at)}${o.updated ? ' · changed' : ''}</small><span class="chip" style="background:${col}">${label}</span></div>${trk}
+      <div class="it">${o.lines.map((l) => `${esc(clean(l.n))} — <b>${l.q} ${esc(l.u || '')}</b>`).join('<br>')}</div>
+      <div class="ft"><b>${money(o.total)}</b><button class="ob" data-a="print">🖨️ Print</button>${canChange(o) ? '<button class="ob e" data-a="edit">✏️ Edit</button><button class="ob c" data-a="cancel">✕ Cancel</button>' : ''}</div></div>`; };
+  const draw = () => { s.querySelector('#ol').outerHTML = `<div id="ol">${orders.length ? orders.map(card).join('') : '<div style="text-align:center;color:#6b7a90;padding:20px">No orders yet.</div>'}<div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:4px">You can edit or cancel an order until ${esc(D.company)} approves it.</div></div>`; };
+  draw();
+  s.querySelector('.box').onclick = async (e) => { const b = e.target.closest('[data-a]'); if (!b) return; const o = orders[+b.closest('.oc').dataset.k];
+    if (b.dataset.a === 'print') return printOrder(o);
+    if (b.dataset.a === 'edit') { editing = o; cart.clear(); for (const l of o.lines) { const it = byName.get(l.n); if (it) cart.set(it.i, l.q); } s.remove(); bar(); list(); review(); return; }
+    if (b.dataset.a === 'cancel') { if (!confirm(`Cancel order ${o.id}?`)) return; b.disabled = true; b.textContent = 'Cancelling…';
+      try { const r = await (await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ api: 'cancel', o: TOKEN, id: o.id }) })).json(); if (!r.ok) throw new Error(r.error); o.status = 'cancel'; draw(); }
+      catch (err) { alert(err.message || err); b.disabled = false; b.textContent = '✕ Cancel'; } }
+  };
+}
+document.getElementById('mine').onclick = myOrders;
+function printOrder(o) {
+  const w = window.open('', '_blank'); if (!w) { alert('Allow pop-ups to print'); return; }
+  const rows = o.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${esc(clean(l.n))}</td><td class="r">${l.q}</td><td>${esc(l.u || '')}</td><td class="r">${l.r ? money(l.r) : '—'}</td><td class="r">${l.r ? money(l.r * l.q) : 'On bill'}</td></tr>`).join('');
+  const [label] = ST[o.status] || [o.status];
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Order ${esc(o.id)}</title><style>@page{size:A4;margin:14mm}body{font-family:Inter,Arial,sans-serif;color:#1f2937;margin:0}
+    .hd{background:#0c831f;color:#fff;padding:18px 22px;display:flex;align-items:center}.hd h1{margin:0;font-size:22px}.hd .b{margin-left:auto;background:#f8cb46;color:#0c831f;font-weight:900;padding:6px 12px;border-radius:8px}
+    .strip{height:5px;background:#f8cb46}.bx{display:flex;gap:10px;margin:16px 0}.bx div{flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px}.bx small{display:block;color:#64748b;font-size:10px;text-transform:uppercase}
+    table{width:100%;border-collapse:collapse;font-size:13px}th{background:#1f2937;color:#fff;text-align:left;padding:7px}td{padding:7px;border-bottom:1px solid #e2e8f0}.r{text-align:right}tr:nth-child(even) td{background:#f6fbf7}
+    .tot{margin-left:auto;width:260px;margin-top:12px;background:#0c831f;color:#fff;border-radius:8px;padding:10px 12px;display:flex;font-weight:800}.tot span{margin-left:auto}.n{margin-top:12px;font-size:12px;color:#475569}.ft{margin-top:30px;font-size:11px;color:#64748b;text-align:center}</style></head><body>
+    <div class="hd"><h1>${esc(D.company)}</h1><span class="b">ORDER · ${esc(label.toUpperCase())}</span></div><div class="strip"></div><div style="padding:0 22px">
+    <h2 style="margin:16px 0 0">Order ${esc(o.id)}</h2><div class="bx"><div><small>Ordered by</small><b>${esc(D.party)}</b></div><div><small>Date</small><b>${when(o.at)}</b></div><div><small>Status</small><b>${esc(label)}</b></div><div><small>Items</small><b>${o.lines.length}</b></div></div>
+    <table><tr><th>#</th><th>Item</th><th class="r">Qty</th><th>Unit</th><th class="r">Rate</th><th class="r">Amount</th></tr>${rows}</table>
+    <div style="display:flex"><div class="tot">Estimated total<span>${money(o.total)}</span></div></div>${o.note ? `<div class="n"><b>Note:</b> ${esc(o.note)}</div>` : ''}
+    <div class="ft">This is a record of your order, not a tax invoice. GST and the final amount will be on the bill at dispatch.</div></div>
+    <script>setTimeout(()=>print(),300)<\/script></body></html>`);
+  w.document.close();
 }
 function confetti() { for (let i = 0; i < 70; i++) { const c = document.createElement('i'); c.className = 'conf'; c.style.left = `${Math.random() * 100}vw`; c.style.background = PAL[i % PAL.length]; c.style.animationDuration = `${1.6 + Math.random() * 1.8}s`; c.style.animationDelay = `${Math.random() * .5}s`; document.body.appendChild(c); setTimeout(() => c.remove(), 4200); } }
 side(); list(); document.getElementById('load').remove();
