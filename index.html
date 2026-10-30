@@ -99,6 +99,7 @@ const byName = new Map(items.map((it) => [it.n, it]));
 const when = (t) => { const d = new Date(t); return isNaN(d) ? '' : d.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); };
 document.getElementById('co').textContent = D.company || 'Order form';
 document.getElementById('party').textContent = D.party || 'Customer';
+const wa = (() => { const d = String(D.phone || '').split(/[,/;]/)[0].replace(/\D/g, ''); return d.length === 10 ? `91${d}` : d.length >= 11 ? d : ''; })(); // the company's WhatsApp
 const rateOf = (it) => (mineRate.get(it.i) > 0 ? mineRate.get(it.i) : it.r) || 0;
 const gcount = new Map(); for (const it of items) { const g = it.g || 'Other'; gcount.set(g, (gcount.get(g) || 0) + 1); }
 const groups = [...gcount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 60);
@@ -141,7 +142,7 @@ function review() {
     const l = [...cart.entries()].map(([i, v]) => ({ n: items[i].n, q: v, u: items[i].u || '', r: rateOf(items[i]) }));
     fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ api: 'submit', o: TOKEN, id: editing ? editing.id : undefined, lines: l, note: s.querySelector('#note').value, contact: s.querySelector('#contact').value }) })
       .then((x) => x.json()).then((r) => { if (!r.ok) throw new Error(r.error || 'Could not place the order');
-        const was = editing; editing = null; cart.clear(); bar(); list(); s.querySelector('.box').innerHTML = `<div class="ok"><div class="big">${was ? '✏️' : '🎉'}</div><h2>${was ? 'Order updated!' : 'Order placed!'}</h2><p>Order no <b>${esc(r.no)}</b> · ${r.items} item(s)${r.total ? ` · ${money(r.total)}` : ''}</p><p>${esc(D.company)} will confirm it on WhatsApp with your order PDF. Thank you! 🙏</p><button class="place" onclick="this.closest('.sheet').remove()">Done</button></div>`; confetti(); })
+        const was = editing; editing = null; cart.clear(); bar(); list(); s.querySelector('.box').innerHTML = `<div class="ok"><div class="big">${was ? '✏️' : '🎉'}</div><h2>${was ? 'Order updated!' : 'Order placed!'}</h2><p>Order no <b>${esc(r.no)}</b> · ${r.items} item(s)${r.total ? ` · ${money(r.total)}` : ''}</p><p>Tap below to get your confirmation &amp; order PDF on WhatsApp. Thank you! 🙏</p>${wa ? `<a class="place" style="display:block;text-decoration:none;background:linear-gradient(100deg,#128c3e,#25d366)" href="https://wa.me/${wa}?text=${encodeURIComponent(`Confirm order ${r.no}`)}">📲 Get confirmation on WhatsApp</a>` : ''}<button class="place ghost" onclick="this.closest('.sheet').remove()">Done</button></div>`; confetti(); })
       .catch((err) => { btn.disabled = false; btn.textContent = '✅ Place order'; alert(err.message || err); }); };
 }
 async function myOrders() {
@@ -154,9 +155,9 @@ async function myOrders() {
   const steps = ['Placed', 'Received', 'Approved', 'Dispatched'];
   const card = (o, k) => { const [label, col, at] = ST[o.status] || [o.status, '#6b7280', 0];
     const trk = at ? `<div class="trk">${steps.map((x, i) => `<span class="s ${at > i ? 'on' : ''}">${at > i ? '✓' : i + 1}</span>${i < 3 ? `<span class="l ${at > i + 1 ? 'on' : ''}"></span>` : ''}`).join('')}</div><div class="tl">${steps.map((x) => `<span>${x}</span>`).join('')}</div>` : '';
-    return `<div class="oc" data-k="${k}"><div class="h"><b>${esc(o.id)}</b><small>${when(o.at)}${o.updated ? ` · updated ${when(o.updated)}` : ''}</small><span class="chip" style="background:${col}">${label}</span></div>${trk}
+    return `<div class="oc" data-k="${k}"><div class="h"><b>${esc(o.id)}</b><small>${when(o.at)}${o.updated ? ` · updated ${when(o.updated)}` : ''}</small><span class="chip" style="background:${col}">${label}</span></div>${o.confirmed ? '<div style="font-size:11px;color:#15803d;font-weight:700;margin-top:4px">✓ Confirmation sent on WhatsApp</div>' : ''}${trk}
       <div class="it">${o.lines.map((l) => `${esc(clean(l.n))} — <b>${l.q} ${esc(l.u || '')}</b>`).join('<br>')}</div>
-      <div class="ft"><b>${money(o.total)}</b><button class="ob" data-a="print">🖨️ Print</button>${canChange(o) ? '<button class="ob e" data-a="edit">✏️ Edit</button><button class="ob c" data-a="cancel">✕ Cancel</button>' : ''}</div></div>`; };
+      <div class="ft"><b>${money(o.total)}</b><button class="ob" data-a="print">🖨️ Print</button>${canChange(o) ? '<button class="ob e" data-a="edit">✏️ Edit</button><button class="ob c" data-a="cancel">✕ Cancel</button>' : ''}${wa && !['cancel', 'cancelled', 'rejected'].includes(o.status) ? `<a class="ob" style="text-decoration:none;border-color:#25d366;color:#128c3e" href="https://wa.me/${wa}?text=${encodeURIComponent(`Confirm order ${o.id}`)}">📲 WhatsApp</a>` : ''}</div></div>`; };
   const draw = () => { s.querySelector('#ol').outerHTML = `<div id="ol">${orders.length ? orders.map(card).join('') : '<div style="text-align:center;color:#6b7a90;padding:20px">No orders yet.</div>'}<div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:4px">You can edit or cancel an order until ${esc(D.company)} approves it.</div></div>`; };
   draw();
   s.querySelector('.box').onclick = async (e) => { const b = e.target.closest('[data-a]'); if (!b) return; const o = orders[+b.closest('.oc').dataset.k];
